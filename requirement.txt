@@ -1,0 +1,13 @@
+Pillow==9.5.0
+torch
+torchvision
+numpy
+einops
+gdown
+PyYAML
+tqdm
+scikit-learn
+imgaug
+prefetch-generator
+lmdb
+mlflow
