@@ -5,16 +5,35 @@ from PIL import Image
 import os
 from config.config import CONFIG
 from ocr_api import *
+import numpy as np
 load_model(CONFIG)
 
-img_path = 'test1.jpg'
+# img_path = './cropped_images/cropped_5.png'
+img_path = '/Volumes/data/workspace/OCR-And-Spell-Correction-master/ocr-inference/demo/20140603_0006_BCCTC_tg_2_2.png'
 img = cv2.imread(img_path)
+print(img.shape)
+
+scale_factor = 2 # Increase this value to zoom more
+height, width = img.shape[:2]
+new_width = int(width * scale_factor)
+new_height = int(height * scale_factor)
+
+zoomed_img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_LINEAR)
+
+kernel = np.array([[0, -1, 0], [-1, 5,-1], [0, -1, 0]])  # Sharpening kernel
+sharp_img = cv2.filter2D(zoomed_img, -1, kernel)
+sharp_img_rgb = cv2.cvtColor(sharp_img, cv2.COLOR_BGR2RGB)
+print(sharp_img_rgb.shape)
+
+plt.imshow(sharp_img_rgb)
+plt.axis('off')  # Hide the axes
+plt.show()
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
 _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
 
 paddle = PaddleOCR(use_angle_cls=False, lang="vi", use_gpu=False)
-result = paddle.ocr(img=img, cls=False, det=True)#, rec=False)
+result = paddle.ocr(img=sharp_img_rgb, cls=False, det=True)#, rec=False)
 result = result[:][:][0]
 print(result)
 

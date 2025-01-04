@@ -10,6 +10,7 @@ from config.config import CONFIG
 from ocr_api import *
 from paddle_service import expand_boxes_to_nearest_lines
 from fastapi.middleware.cors import CORSMiddleware
+from ocr_api import *
 
 app = FastAPI()
 
@@ -40,6 +41,18 @@ async def ocr(file: UploadFile=File(...)) :
       np_img = np.frombuffer(file_image, np.uint8)
       img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
       
+      h, w,c = img.shape
+      print(h)
+      
+      if h < 100: 
+        texts = []
+        gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        image = Image.fromarray(gray_img)
+        text = ocr_processing(image)
+        print(text)
+        texts.append(text)
+        return texts
+        
       # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
       # _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
       
