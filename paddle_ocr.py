@@ -7,12 +7,14 @@ from config.config import CONFIG
 from ocr_api import *
 load_model(CONFIG)
 
-img_path = 'test2.jpg'
+img_path = 'test1.jpg'
 img = cv2.imread(img_path)
-print("check img", img)
 
-paddle = PaddleOCR(use_angle_cls=False, lang="vi", use_gpu=True)
-result = paddle.ocr(img_path, cls=False, det=True)#, rec=False)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
+_, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+
+paddle = PaddleOCR(use_angle_cls=False, lang="vi", use_gpu=False)
+result = paddle.ocr(img=img, cls=False, det=True)#, rec=False)
 result = result[:][:][0]
 print(result)
 
@@ -43,9 +45,7 @@ def expand_boxes_to_nearest_lines(img, boxes):
 
     sorted_boxes = sorted(boxes, key=lambda box: box[0][1])
     texts = []
-    
-    
-    
+  
     for i, box in enumerate(sorted_boxes):
         y1 = box[0][1]
         y2 = box[1][1]
@@ -78,7 +78,11 @@ def expand_boxes_to_nearest_lines(img, boxes):
         print(f'cropped_{i+1}.png: ', y1, y2, x1, x2)
         
         try:
-            cropped_image_pil = Image.fromarray(cropped_image)
+            
+         
+            gray_img = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+            cropped_image_pil = Image.fromarray(gray_img)
+            
             cropped_image_pil.save(cropped_image_path)
             text = ocr_processing(cropped_image_pil)
             print(text)

@@ -40,13 +40,18 @@ async def ocr(file: UploadFile=File(...)) :
       np_img = np.frombuffer(file_image, np.uint8)
       img = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
       
+      # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) 
+      # _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY)
+      
       paddle = PaddleOCR(use_angle_cls=False, lang="vi", use_gpu=True)
-      result = paddle.ocr( 'test1.jpg', cls=False, det=True)
+      result = paddle.ocr(img=img, cls=False, det=True)
       result = result[:][:][0]
+      print(result)
       boxes = []
-      for line in result:
-        line = line[0]
-        boxes.append([[int(line[0][0]), int(line[0][1])], [int(line[2][0]), int(line[2][1])]])
+      if result :
+        for line in result:
+          line = line[0]
+          boxes.append([[int(line[0][0]), int(line[0][1])], [int(line[2][0]), int(line[2][1])]])
       boxes = boxes[::-1]
       EXPEND = 5
      

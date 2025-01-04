@@ -2,6 +2,7 @@
 from PIL import Image
 import os
 from ocr_api import *
+import cv2
 
 output_dir = 'cropped_images'
 os.makedirs(output_dir, exist_ok=True)
@@ -39,7 +40,8 @@ def expand_boxes_to_nearest_lines(img, boxes):
         print(f'cropped_{i+1}.png: ', y1, y2, x1, x2)
         
         try:
-            cropped_image_pil = Image.fromarray(cropped_image)
+            gray_img = cv2.cvtColor(cropped_image, cv2.COLOR_BGR2GRAY)
+            cropped_image_pil = Image.fromarray(gray_img)
             cropped_image_pil.save(cropped_image_path)
             text = ocr_processing(cropped_image_pil)
             print(text)
